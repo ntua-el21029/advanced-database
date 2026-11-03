@@ -1,0 +1,5 @@
+raw/
+*.json
+*.parquet
+__pycache__/
+.venv/
