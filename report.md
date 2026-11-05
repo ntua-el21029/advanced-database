@@ -37,11 +37,11 @@
 
 Στον παρακάτω πίνακα παρουσιάζονται οι χρόνοι εκτέλεσης (wall-clock time) και ο αριθμός των tasks για τις τρεις διαφορετικές μεθόδους ανάγνωσης του dataset. 
 
-| Μέθοδος Ανάγνωσης | Χρόνος Εκτέλεσης (Median) | Tasks (Stage 0 - Read) | Tasks (Stage 1 - Aggregate) |
+| Μέθοδος Ανάγνωσης | Χρόνος Εκτέλεσης (Median) | Tasks (Inference) | Tasks (Computation) |
 | :--- | :--- | :--- | :--- |
-| **JSON (Schema Inference)** | ~29.57 sec | [Αριθμός] | [Αριθμός] |
-| **JSON (Explicit Schema)** | ~24.96 sec | [Αριθμός] | [Αριθμός] |
-| **Parquet** | ~13.07 sec | [Αριθμός] | [Αριθμός] |
+| **JSON (Schema Inference)** | ~29.57 sec | 40 (Job 0: Inference) | 40 (Job 1: Execution) |
+| **JSON (Explicit Schema)** | ~18.1 sec | [ 0 for Inference] | [40 for WholeStageCodegen] |
+| **Parquet** | ~13.07 sec | [Αριθμός από Stage 0] | [Αριθμός από Stage 1] |
 
 *Σημείωση: Οι χρόνοι αποτελούν τον διάμεσο 3 διαδοχικών εκτελέσεων με χρήση της βιβλιοθήκης `time` της Python.*
 
