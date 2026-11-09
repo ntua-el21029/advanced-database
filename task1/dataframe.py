@@ -7,12 +7,14 @@ spark = SparkSession.builder \
     .appName("Dataframe Query1") \
     .getOrCreate()
 
+spark.sparkContext.setLogLevel("WARN") #both warn and error 
+
 # parquet to dataframe
 df = spark.read.parquet("/home/spirost/advdb/task0/parquet_output/review") 
 
 filtered_df = df.filter(
-    (year(col("date")) >= 2015) & 
-    (year(col("date")) <= 2021) & 
+    (col("year") >= 2015) & 
+    (col("year") <= 2021) & 
     (col("useful") >= 1)
 )
 
@@ -32,9 +34,10 @@ result = categorized_df.groupBy("length_category").agg(
     avg("useful").alias("avg_useful")
 ).orderBy(col("avg_useful").desc()) 
 
+
+result.explain()
 # print results
 result.show(truncate=False)
-
 
 # b 
 df_with_year = categorized_df.withColumn("review_year", year(col("date")))
@@ -47,6 +50,7 @@ window_year = Window.partitionBy("review_year")
 result_b = counts_df.withColumn("total_year", sum("cat_by_year_count").over(window_year)) \
     .withColumn("percentage", round((col("cat_by_year_count") / col("total_year")) * 100, 2)) \
     .orderBy("review_year", "length_category")
+
 
 result_b.select("review_year", "length_category", "percentage").show(100)
 
