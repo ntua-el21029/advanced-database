@@ -40,18 +40,15 @@ result.explain()
 result.show(truncate=False)
 
 # b 
-df_with_year = categorized_df.withColumn("review_year", year(col("date")))
-
-counts_df = df_with_year.groupBy("review_year", "length_category").agg(count("*").alias("cat_by_year_count"))
+counts_df = categorized_df.groupBy("year", "length_category").agg(count("*").alias("cat_by_year_count"))
 
 # window function to calculate total reviews per year
-window_year = Window.partitionBy("review_year")
+window_year = Window.partitionBy("year")
 
 result_b = counts_df.withColumn("total_year", sum("cat_by_year_count").over(window_year)) \
     .withColumn("percentage", round((col("cat_by_year_count") / col("total_year")) * 100, 2)) \
-    .orderBy("review_year", "length_category")
+    .orderBy("year", "length_category")
 
-
-result_b.select("review_year", "length_category", "percentage").show(100)
+result_b.select(col("year").alias("review_year"), "length_category", "percentage").show(100)
 
 spark.stop()

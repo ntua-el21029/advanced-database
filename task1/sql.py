@@ -1,4 +1,6 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+import time
 
 spark = SparkSession.builder \
     .appName("SQL API Query1") \
@@ -7,8 +9,17 @@ spark = SparkSession.builder \
 spark.sparkContext.setLogLevel("WARN")
 
 df = spark.read.parquet("/home/spirost/advdb/task0/parquet_output/review")
-df.createOrReplaceTempView("reviews")
 
+# Partition at years at disc
+filtered_df = df.filter(
+    (col("year") >= 2015) & 
+    (col("year") <= 2021) & 
+    (col("useful") >= 1)
+)
+
+filtered_df.createOrReplaceTempView("filtered_reviews") # Necessary for SQL to see the DataFrame
+
+start_time = time.time()
 
 query_a = """
     SELECT 
@@ -21,9 +32,7 @@ query_a = """
         COUNT(*) AS total_reviews,
         AVG(stars) AS avg_stars,
         AVG(useful) AS avg_useful
-    FROM reviews
-    WHERE year BETWEEN 2015 AND 2021
-      AND useful >= 1
+    FROM filtered_reviews
     GROUP BY 
         CASE 
             WHEN length(text) < 250 THEN 'Short'
@@ -48,11 +57,9 @@ query_b = """
                 ELSE 'Very Long'
             END AS length_category,
             COUNT(*) AS cat_by_year_count
-        FROM reviews
-        WHERE year BETWEEN 2015 AND 2021
-          AND useful >= 1
+        FROM filtered_reviews
         GROUP BY 
-            year(date),
+            year,
             CASE 
                 WHEN length(text) < 250 THEN 'Short'
                 WHEN length(text) BETWEEN 250 AND 749 THEN 'Medium'
@@ -70,5 +77,8 @@ query_b = """
 
 result_b = spark.sql(query_b)
 result_b.show(100, truncate=False)
+
+end_time = time.time()
+print(f"Total time without cache: : {end_time - start_time} seconds")
 
 spark.stop()
