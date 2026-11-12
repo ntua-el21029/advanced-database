@@ -1,4 +1,7 @@
 from pyspark.sql import SparkSession
+import time
+
+start_time = time.time()
 
 spark = SparkSession.builder \
     .appName("SQL Query2") \
@@ -55,4 +58,8 @@ ORDER BY state, avg_stars DESC
 final_sql_df = spark.sql(sql_query)
 final_sql_df.show(100)
 final_sql_df.explain(mode = "formatted")
+
+end_time = time.time()
+print(f"Execution time sql: {end_time - start_time} seconds")
+
 spark.stop()

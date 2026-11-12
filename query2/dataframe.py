@@ -1,6 +1,9 @@
 from pyspark.sql.functions import col, split, explode, trim, count, avg, round, when, sum as spark_sum, row_number
 from pyspark.sql.window import Window
 from pyspark.sql import SparkSession
+import time
+
+start_time = time.time()
 
 spark = SparkSession.builder \
     .appName("Dataframe Query2") \
@@ -13,7 +16,6 @@ reviews_df = spark.read.parquet("/home/spirost/advdb/task0/parquet_output/review
 
 #  returns 2 columns: state, number of businesses and filters out states with less than 1000 businesses
 valid_states = business_df.groupBy("state").count().filter(col("count") >= 1000)
-valid_states.show(100)
 
 # exact businesses in these states
 target_business = (
@@ -43,5 +45,8 @@ final_df = (
 
 final_df.show(100)
 final_df.explain(mode = "formatted")
+
+end_time = time.time()
+print(f"Execution time dataframe: {end_time - start_time} seconds")
 
 spark.stop()
