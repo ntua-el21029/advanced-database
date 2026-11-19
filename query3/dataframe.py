@@ -71,7 +71,7 @@ try:
     end_time = time.time()
     print(f"Completed in: {end_time - start_time:.2f} seconds\n")
 
-    result_df.show(1000, truncate=False)
+    #result_df.show(1000, truncate=False)
 except Exception as e:
     print(f"Failed ({strategy}): {str(e)[:150]}...\n")
 
