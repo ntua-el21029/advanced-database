@@ -139,4 +139,7 @@
     * Μέγεθος πίνακα user: $\vert{}U\vert{} = 1.987.897$ εγγραφές
     * Μέγεθος πίνακα review: $\vert{}R\vert{} = 6.990.280$ εγγραφές
     * Συνολικό πλήθος συγκρίσεων στο πλήρες dataset:$$\vert{}U\vert{} \times \vert{}R\vert{} = 1.987.897 \times 6.990.280 = 13.895.956.641.160 \text{ συγκρίσεις}$$
-    
+
+* Η στρατηγική που απέτυχε ήταν το **BROADCAST (BroadcastHashJoin)** στον πίνακα review, με σφάλμα java.lang.OutOfMemoryError: Java heap space στον Driver. 
+
+  Για να εκτελεστεί ένα BroadcastHashJoin, το Spark πρέπει πρώτα να συλλέξει (collect) ολόκληρο τον πίνακα της build πλευράς (review, ~6,99 εκατ. εγγραφές) στη μνήμη του Driver, ώστε να κατασκευάσει τη δομή HashedRelation και να τη μεταδώσει σε όλους τους executors. Ο όγκος των δεδομένων του review ιδίως σε αποσυμπιεσμένη μορφή στη JVM heap (Java objects + overhead του Hash Table) ξεπερνά κατά πολύ τη διαθέσιμη μνήμη, προκαλώντας κατάρρευση του Driver πριν καν ξεκινήσει το join στους executors (ενώ αντίστοιχα δεν θα χωρούσε ούτε στα 2GB RAM ανά executor).
